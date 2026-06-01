@@ -6,8 +6,8 @@
 }
 
 body {
-    background-color: #0d0e12;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #06080c;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -17,58 +17,68 @@ body {
 
 #game-container {
     position: relative;
-    width: 800px;
-    height: 600px;
-    border-radius: 8px;
+    width: 900px;
+    height: 650px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 236, 198, 0.05);
+    border: 1px solid #161b26;
 }
 
 canvas {
     display: block;
-    cursor: crosshair;
+    background: #090d16;
 }
 
 #ui-overlay {
     position: absolute;
-    top: 15px;
+    top: 20px;
     left: 0;
     width: 100%;
-    padding: 0 20px;
+    padding: 0 25px;
     display: flex;
     justify-content: space-between;
     pointer-events: none;
+    z-index: 5;
+}
+
+.stat-cluster {
+    display: flex;
+    gap: 12px;
 }
 
 .stat-box {
-    background: rgba(20, 24, 35, 0.85);
-    padding: 10px 20px;
-    border-radius: 20px;
-    font-weight: bold;
-    color: #fff;
-    border: 1px solid #2f3640;
-    font-size: 0.95rem;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    background: rgba(10, 14, 23, 0.85);
+    backdrop-filter: blur(8px);
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-weight: 700;
+    color: #ffffff;
+    border: 1px solid #1e2638;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
 }
 
-#gem-count { color: #00ecc6; }
-#kill-count { color: #ff3838; }
+.text-cyan { color: #00f3ff !important; }
+.text-crimson { color: #ff3366 !important; }
+.text-gold { color: #ffb800 !important; }
 
-/* Modals Overlay Screen */
+/* Cinematic Modal Layers */
 .modal {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(10, 12, 18, 0.95);
+    background: rgba(5, 7, 12, 0.96);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.25s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 10;
 }
 
@@ -77,52 +87,63 @@ canvas {
     visibility: visible;
 }
 
-.logo {
-    font-size: 3rem;
+.glitch-title {
+    font-size: 3.2rem;
     font-weight: 900;
-    letter-spacing: 4px;
-    color: #00ecc6;
-    margin-bottom: 10px;
-    text-shadow: 0 0 20px rgba(0, 236, 198, 0.3);
-}
-
-.logo.fatal {
-    color: #ff3838;
-    text-shadow: 0 0 20px rgba(255, 56, 56, 0.3);
+    letter-spacing: 6px;
+    color: #00f3ff;
+    margin-bottom: 12px;
+    text-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
 }
 
 p {
-    color: #a4b0be;
+    color: #76839b;
     text-align: center;
-    line-height: 1.6;
-    margin-bottom: 30px;
-    font-size: 1.05rem;
+    line-height: 1.8;
+    margin-bottom: 35px;
+    font-size: 1rem;
+    max-width: 500px;
 }
 
 button {
-    background: #00ecc6;
+    background: #00f3ff;
     border: none;
-    color: #0a0c12;
-    padding: 14px 35px;
-    font-size: 1.1rem;
-    font-weight: bold;
+    color: #05070c;
+    padding: 15px 40px;
+    font-size: 1rem;
+    font-weight: 800;
     cursor: pointer;
     border-radius: 30px;
-    box-shadow: 0 5px 15px rgba(0, 236, 198, 0.4);
-    transition: transform 0.15s, box-shadow 0.15s;
+    box-sizing: border-box;
+    letter-spacing: 1px;
+    box-shadow: 0 8px 25px rgba(0, 243, 255, 0.3);
+    transition: all 0.2s ease;
+    text-transform: uppercase;
 }
 
 button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 236, 198, 0.6);
+    box-shadow: 0 12px 30px rgba(0, 243, 255, 0.5);
+    background: #ffffff;
 }
 
 #game-over-screen button {
-    background: #ff3838;
+    background: #ff3366;
     color: #fff;
-    box-shadow: 0 5px 15px rgba(255, 56, 56, 0.4);
+    box-shadow: 0 8px 25px rgba(255, 51, 102, 0.3);
+}
+#game-over-screen button:hover {
+    background: #ffffff;
+    color: #ff3366;
+    box-shadow: 0 12px 30px rgba(255, 51, 102, 0.5);
 }
 
-#game-over-screen button:hover {
-    box-shadow: 0 8px 20px rgba(255, 56, 56, 0.6);
+#victory-screen button {
+    background: #ffb800;
+    color: #05070c;
+    box-shadow: 0 8px 25px rgba(255, 184, 0, 0.3);
+}
+#victory-screen button:hover {
+    background: #ffffff;
+    color: #ffb800;
 }
