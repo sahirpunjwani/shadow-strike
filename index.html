@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow Strike: Thief of Fate</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        
+        <div id="ui-overlay">
+            <div id="score-board">Guards Eliminated: <span id="score">0</span></div>
+            <div id="controls-hint">WASD / Arrows to Move | Approach guards from behind to eliminate them</div>
+        </div>
+
+        <div id="start-screen" class="modal active">
+            <h1>SHADOW STRIKE</h1>
+            <p>Thief of Fate</p>
+            <button id="start-btn">Begin Mission</button>
+        </div>
+
+        <div id="game-over-screen" class="modal">
+            <h1 class="alert">MISSION FAILED</h1>
+            <p>You were spotted by the guards.</p>
+            <button id="restart-btn">Try Again</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
