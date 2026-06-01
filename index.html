@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shadow Strike: Thief of Fate</title>
+    <title>Neon Assassin: Hunt & Run</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,20 +12,20 @@
         <canvas id="gameCanvas" width="800" height="600"></canvas>
         
         <div id="ui-overlay">
-            <div id="score-board">Guards Eliminated: <span id="score">0</span></div>
-            <div id="controls-hint">WASD / Arrows to Move | Approach guards from behind to eliminate them</div>
+            <div class="stat-box">Gems: <span id="gem-count">0</span></div>
+            <div class="stat-box">Eliminations: <span id="kill-count">0</span></div>
         </div>
 
         <div id="start-screen" class="modal active">
-            <h1>SHADOW STRIKE</h1>
-            <p>Thief of Fate</p>
-            <button id="start-btn">Begin Mission</button>
+            <div class="logo">NEON ASSASSIN</div>
+            <p>Click anywhere to move & attack from behind.<br>Avoid getting shot when spotted!</p>
+            <button id="start-btn">Start Infiltration</button>
         </div>
 
         <div id="game-over-screen" class="modal">
-            <h1 class="alert">MISSION FAILED</h1>
-            <p>You were spotted by the guards.</p>
-            <button id="restart-btn">Try Again</button>
+            <div class="logo fatal">ELIMINATED</div>
+            <p>The guard forces overwhelmed you.</p>
+            <button id="restart-btn">Restart Hunt</button>
         </div>
     </div>
 
