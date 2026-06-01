@@ -235,7 +235,7 @@ function populateSectorGuards() {
             fov: type === 'heavy' ? Math.PI/3.5 : Math.PI/2.4,
             color: type === 'better' ? '#0044ff' : (type === 'heavy' ? '#ff3366' : '#00f3ff'),
             optimalDistance: 120,
-            hearRadius: 90 // Sensation bubble width threshold
+            hearRadius: 90 
         });
     });
     guardCountEl.innerText = guards.length;
@@ -323,13 +323,13 @@ function update() {
             }
         }
 
-        // Footstep Vibration Awareness Engine
+        // Footstep Noise Alert -> Transitions properly strictly to SUSPICIOUS mode
         if (!hasLOS && guard.state === 'patrol' && player.isMoving && distToPlayer < guard.hearRadius) {
             if (!isLineOfSightBlocked(guard.x, guard.y, player.x, player.y)) {
                 guard.state = 'suspicious';
-                guard.suspiciousTimer = 120; // 2 seconds scan status loop delay
-                guard.wpX = player.x; guard.wpY = player.y; // Set last known source position coordinates
-                guard.angle = Math.atan2(gDy, gDx); // Spin cleanly toward noise footprint
+                guard.suspiciousTimer = 120; 
+                guard.wpX = player.x; guard.wpY = player.y; 
+                guard.angle = Math.atan2(gDy, gDx); 
             }
         }
 
@@ -366,7 +366,6 @@ function update() {
             if (guard.state === 'suspicious') {
                 guard.suspiciousTimer--;
                 
-                // Head toward investigation path target if noted
                 let wpDx = guard.wpX - guard.x;
                 let wpDy = guard.wpY - guard.y;
                 let wpDist = Math.sqrt(wpDx*wpDx + wpDy*wpDy);
@@ -379,7 +378,7 @@ function update() {
                         guard.x += sx; guard.y += sy;
                     }
                 } else {
-                    guard.angle += 0.05 * Math.sin(guard.suspiciousTimer * 0.1); // Look around in alert state
+                    guard.angle += 0.05 * Math.sin(guard.suspiciousTimer * 0.1); 
                 }
 
                 if (guard.suspiciousTimer <= 0) {
@@ -418,16 +417,16 @@ function update() {
             while (approachAngle > Math.PI) approachAngle -= Math.PI * 2;
 
             if (Math.abs(approachAngle) < Math.PI / 1.5) {
-                // Trigger Kill Alert Loop to notify nearby sentries
+                // Nearby kill echo awareness alert trigger
                 guards.forEach((otherGuard) => {
                     if (otherGuard !== guard && otherGuard.state === 'patrol') {
                         let oDx = guard.x - otherGuard.x;
                         let oDy = guard.y - otherGuard.y;
                         let distToKill = Math.sqrt(oDx*oDx + oDy*oDy);
-                        if (distToKill < 150) { // 150px listening distance for nearby kills
+                        if (distToKill < 150) { 
                             otherGuard.state = 'suspicious';
                             otherGuard.suspiciousTimer = 150;
-                            otherGuard.wpX = guard.x; otherGuard.wpY = guard.y; // Alert target waypoint to weapon point source
+                            otherGuard.wpX = guard.x; otherGuard.wpY = guard.y; 
                         }
                     }
                 });
@@ -445,7 +444,7 @@ function update() {
         }
     }
 
-    // Gem loop processing
+    // Gem processing loop
     for (let i = gems.length - 1; i >= 0; i--) {
         let gem = gems[i];
         if (Math.sqrt((player.x - gem.x)**2 + (player.y - gem.y)**2) < player.radius + 10) {
@@ -460,6 +459,7 @@ function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
     
+    // Hardware dynamic transformation matrix zoom
     ctx.scale(camera.zoom, camera.zoom);
     ctx.translate(-camera.x, -camera.y);
 
@@ -476,7 +476,7 @@ function draw() {
         ctx.strokeRect(wall.x, wall.y, wall.w, wall.h);
     });
 
-    // Draw Drops
+    // Draw Gems
     ctx.fillStyle = '#00f3ff';
     gems.forEach(gem => {
         ctx.beginPath(); ctx.arc(gem.x, gem.y, 4, 0, Math.PI*2); ctx.fill();
@@ -499,7 +499,7 @@ function draw() {
         ctx.moveTo(guard.x, guard.y);
 
         // Raycast Vision Generation Loop
-        const rayCount = 20; // Number of tracking precision slices across FOV profile width
+        const rayCount = 20; 
         const startAngle = guard.angle - guard.fov / 2;
         const angleIncrement = guard.fov / rayCount;
 
@@ -533,7 +533,7 @@ function draw() {
     ctx.fillStyle = '#00f3ff';
     ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI*2); ctx.fill();
 
-    // Visual tracking path indicators
+    // Visual drag indicators
     if (Math.sqrt((player.targetWorldX - player.x)**2 + (player.targetWorldY - player.y)**2) > 15) {
         ctx.strokeStyle = 'rgba(0, 243, 255, 0.3)';
         ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
