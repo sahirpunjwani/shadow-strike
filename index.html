@@ -3,46 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Assassin: Sector Protocol</title>
+    <title>Master Assassin: Maze Break</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div id="game-container">
-        <canvas id="gameCanvas" width="900" height="650"></canvas>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
         
         <div id="ui-overlay">
             <div class="stat-cluster">
-                <div class="stat-box">Sector: <span id="current-level">1/5</span></div>
-                <div class="stat-box text-cyan">Gems: <span id="gem-count">0</span></div>
+                <div class="stat-box">Floor: <span id="current-level">1/5</span></div>
+                <div class="stat-box cyan-glow">Gems: <span id="gem-count">0</span></div>
             </div>
             <div class="stat-cluster">
-                <div class="stat-box text-crimson">Hostiles Left: <span id="guard-count">0</span></div>
+                <div class="stat-box alert-glow">Targets Left: <span id="guard-count">0</span></div>
             </div>
         </div>
 
         <div id="start-screen" class="modal active">
-            <div class="glitch-title">SECTOR PROTOCOL</div>
-            <p>Click & Drag to steer your assassin seamlessly.<br>Ambush guards from behind. Clear the sector to advance.</p>
-            <button id="start-btn">Initialize Infiltration</button>
+            <div class="title-brand">MAZE BREAK</div>
+            <p>Drag or Tap to move through the maze lanes.<br>Break line-of-sight behind walls to shake off pursuing guards!</p>
+            <button id="start-btn">Infiltrate System</button>
         </div>
 
         <div id="level-screen" class="modal">
-            <div class="glitch-title text-cyan">SECTOR CLEARED</div>
-            <p>Hostile network bypassed. Ready for next transmission link.</p>
-            <button id="next-btn">Advance Sector</button>
+            <div class="title-brand cyan-glow">FLOOR CLEARED</div>
+            <p>Security lock breached. Moving to deeper tactical network nodes.</p>
+            <button id="next-btn">Descend Grid</button>
         </div>
 
         <div id="victory-screen" class="modal">
-            <div class="glitch-title text-gold">MISSION ACCOMPLISHED</div>
-            <p>All sectors neutralized. You are the ultimate phantom master.</p>
-            <button id="victory-btn">Replay Operation</button>
+            <div class="title-brand gold-glow">GRID MASTERED</div>
+            <p>All security complexes fully neutralized. Operation complete.</p>
+            <button id="victory-btn">Re-engage Simulation</button>
         </div>
 
         <div id="game-over-screen" class="modal">
-            <div class="glitch-title text-crimson">TERMINATED</div>
-            <p>Your biometric signatures flatlined.</p>
-            <button id="restart-btn">Deploy Clone</button>
+            <div class="title-brand alert-glow">KIA</div>
+            <p>Operational asset lost in action.</p>
+            <button id="restart-btn">Redeploy Operator</button>
         </div>
     </div>
 

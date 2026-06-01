@@ -6,8 +6,8 @@
 }
 
 body {
-    background-color: #06080c;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #050608;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -17,25 +17,25 @@ body {
 
 #game-container {
     position: relative;
-    width: 900px;
-    height: 650px;
+    width: 800px;
+    height: 600px;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 236, 198, 0.05);
-    border: 1px solid #161b26;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+    border: 1px solid #141923;
 }
 
 canvas {
     display: block;
-    background: #090d16;
+    background: #080b11;
 }
 
 #ui-overlay {
     position: absolute;
-    top: 20px;
+    top: 15px;
     left: 0;
     width: 100%;
-    padding: 0 25px;
+    padding: 0 20px;
     display: flex;
     justify-content: space-between;
     pointer-events: none;
@@ -44,41 +44,39 @@ canvas {
 
 .stat-cluster {
     display: flex;
-    gap: 12px;
+    gap: 10px;
 }
 
 .stat-box {
-    background: rgba(10, 14, 23, 0.85);
-    backdrop-filter: blur(8px);
-    padding: 10px 22px;
-    border-radius: 30px;
+    background: rgba(8, 11, 18, 0.9);
+    backdrop-filter: blur(6px);
+    padding: 8px 18px;
+    border-radius: 20px;
     font-weight: 700;
     color: #ffffff;
-    border: 1px solid #1e2638;
-    font-size: 0.9rem;
-    letter-spacing: 1px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+    border: 1px solid #1c2333;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
 }
 
-.text-cyan { color: #00f3ff !important; }
-.text-crimson { color: #ff3366 !important; }
-.text-gold { color: #ffb800 !important; }
+.cyan-glow { color: #00f3ff !important; text-shadow: 0 0 10px rgba(0, 243, 255, 0.4); }
+.alert-glow { color: #ff3366 !important; text-shadow: 0 0 10px rgba(255, 51, 102, 0.4); }
+.gold-glow { color: #ffb800 !important; text-shadow: 0 0 10px rgba(255, 184, 0, 0.4); }
 
-/* Cinematic Modal Layers */
 .modal {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(5, 7, 12, 0.96);
+    background: rgba(4, 6, 10, 0.97);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s native;
     z-index: 10;
 }
 
@@ -87,63 +85,49 @@ canvas {
     visibility: visible;
 }
 
-.glitch-title {
-    font-size: 3.2rem;
+.title-brand {
+    font-size: 3rem;
     font-weight: 900;
-    letter-spacing: 6px;
+    letter-spacing: 5px;
     color: #00f3ff;
-    margin-bottom: 12px;
-    text-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+    margin-bottom: 10px;
 }
 
 p {
-    color: #76839b;
+    color: #6c7a95;
     text-align: center;
-    line-height: 1.8;
-    margin-bottom: 35px;
-    font-size: 1rem;
-    max-width: 500px;
+    line-height: 1.7;
+    margin-bottom: 30px;
+    font-size: 0.95rem;
+    max-width: 460px;
 }
 
 button {
     background: #00f3ff;
     border: none;
-    color: #05070c;
-    padding: 15px 40px;
-    font-size: 1rem;
+    color: #04060a;
+    padding: 14px 38px;
+    font-size: 0.95rem;
     font-weight: 800;
     cursor: pointer;
-    border-radius: 30px;
-    box-sizing: border-box;
-    letter-spacing: 1px;
-    box-shadow: 0 8px 25px rgba(0, 243, 255, 0.3);
+    border-radius: 25px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 6px 20px rgba(0, 243, 255, 0.3);
     transition: all 0.2s ease;
     text-transform: uppercase;
 }
 
 button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(0, 243, 255, 0.5);
     background: #ffffff;
+    box-shadow: 0 10px 25px rgba(0, 243, 255, 0.5);
 }
 
 #game-over-screen button {
     background: #ff3366;
     color: #fff;
-    box-shadow: 0 8px 25px rgba(255, 51, 102, 0.3);
 }
 #game-over-screen button:hover {
     background: #ffffff;
     color: #ff3366;
-    box-shadow: 0 12px 30px rgba(255, 51, 102, 0.5);
-}
-
-#victory-screen button {
-    background: #ffb800;
-    color: #05070c;
-    box-shadow: 0 8px 25px rgba(255, 184, 0, 0.3);
-}
-#victory-screen button:hover {
-    background: #ffffff;
-    color: #ffb800;
 }

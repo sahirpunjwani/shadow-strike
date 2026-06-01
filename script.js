@@ -1,7 +1,6 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// UI Selection Links
 const levelEl = document.getElementById('current-level');
 const gemCountEl = document.getElementById('gem-count');
 const guardCountEl = document.getElementById('guard-count');
@@ -19,135 +18,153 @@ let isDragging = false;
 let guards = [];
 let gems = [];
 let bullets = [];
-let particles = [];
-
-// Hero Configuration
-const player = {
-    x: 70,
-    y: 325,
-    targetX: 70,
-    targetY: 325,
-    radius: 14,
-    speed: 5.2,
-    angle: 0,
-    hp: 100,
-    maxHp: 100
-};
-
-// Map Level Geometry Architectures
-const levelsWallConfig = {
-    1: [
-        { x: 220, y: 0, w: 50, h: 260 },
-        { x: 220, y: 390, w: 50, h: 260 },
-        { x: 500, y: 180, w: 50, h: 290 }
-    ],
-    2: [
-        { x: 200, y: 120, w: 50, h: 410 },
-        { x: 480, y: 0, w: 50, h: 240 },
-        { x: 480, y: 410, w: 50, h: 240 },
-        { x: 700, y: 150, w: 50, h: 350 }
-    ],
-    3: [
-        { x: 180, y: 0, w: 40, h: 450 },
-        { x: 380, y: 200, w: 40, h: 450 },
-        { x: 580, y: 0, w: 40, h: 450 },
-        { x: 740, y: 200, w: 40, h: 300 }
-    ],
-    4: [
-        { x: 150, y: 100, w: 200, h: 50 },
-        { x: 150, y: 450, w: 200, h: 50 },
-        { x: 500, y: 100, w: 50, h: 450 },
-        { x: 700, y: 250, w: 150, h: 50 }
-    ],
-    5: [
-        { x: 200, y: 0, w: 40, h: 220 },
-        { x: 200, y: 430, w: 40, h: 220 },
-        { x: 420, y: 150, w: 60, h: 350 },
-        { x: 680, y: 0, w: 40, h: 250 },
-        { x: 680, y: 400, w: 40, h: 250 },
-        { x: 200, y: 300, w: 120, h: 40 }
-    ]
-};
-
 let walls = [];
 
-// Native Vector Tracking Engines
-function updateTargetPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    player.targetX = Math.max(player.radius, Math.min(canvas.width - player.radius, e.clientX - rect.left));
-    player.targetY = Math.max(player.radius, Math.min(canvas.height - player.radius, e.clientY - rect.top));
+const player = {
+    x: 50, y: 50,
+    targetX: 50, targetY: 50,
+    radius: 12, speed: 4.8,
+    angle: 0, hp: 100, maxHp: 100
+};
+
+// Tactical Automated Maze Grid Architecture Matrix Generators
+function generateMazeLayout(level) {
+    const layoutWalls = [];
+    const cellSize = 100;
+    const cols = 8;
+    const rows = 6;
+
+    // Outer Boundary Isolation Structural Perimeter Walls
+    layoutWalls.push({ x: 0, y: 0, w: 800, h: 15 });
+    layoutWalls.push({ x: 0, y: 585, w: 800, h: 15 });
+    layoutWalls.push({ x: 0, y: 0, w: 15, h: 600 });
+    layoutWalls.push({ x: 785, y: 0, w: 15, h: 600 });
+
+    // Built-in Seed Map Maze Blueprints
+    const maps = {
+        1: [
+            { c: 1, r: 1, w: true, h: false }, { c: 3, r: 1, w: false, h: true },
+            { c: 5, r: 2, w: true, h: true },  { c: 2, r: 4, w: true, h: false },
+            { c: 6, r: 3, w: false, h: true }, { c: 4, r: 4, w: true, h: true }
+        ],
+        2: [
+            { c: 2, r: 1, w: true, h: true },  { c: 4, r: 2, w: true, h: false },
+            { c: 1, r: 3, w: false, h: true }, { c: 5, r: 4, w: true, h: true },
+            { c: 6, r: 1, w: true, h: false }, { c: 3, r: 3, w: false, h: true }
+        ],
+        3: [
+            { c: 2, r: 2, w: true, h: true },  { c: 4, r: 1, w: true, h: true },
+            { c: 6, r: 4, w: true, h: false }, { c: 1, r: 4, w: true, h: true },
+            { c: 3, r: 3, w: true, h: false }, { c: 5, r: 2, w: false, h: true }
+        ],
+        4: [
+            { c: 1, r: 2, w: true, h: true },  { c: 3, r: 4, w: true, h: true },
+            { c: 5, r: 1, w: true, h: true },  { c: 4, r: 3, w: true, h: false },
+            { c: 6, r: 2, w: false, h: true }, { c: 2, r: 3, w: true, h: true }
+        ],
+        5: [
+            { c: 2, r: 1, w: true, h: true },  { c: 4, r: 4, w: true, h: true },
+            { c: 3, r: 2, w: true, h: false }, { c: 1, r: 3, w: false, h: true },
+            { c: 6, r: 3, w: true, h: true },  { c: 5, r: 1, w: true, h: false }
+        ]
+    };
+
+    const template = maps[level] || maps[1];
+    
+    // Extrapolate internal grid layouts into solid canvas map coordinates
+    template.forEach(block => {
+        let lx = block.c * cellSize;
+        let ly = block.r * cellSize;
+        if (block.w) layoutWalls.push({ x: lx, y: ly, w: 25, h: 140 });
+        if (block.h) layoutWalls.push({ x: lx, y: ly, w: 140, h: 25 });
+    });
+
+    return layoutWalls;
 }
 
-canvas.addEventListener('mousedown', (e) => { isDragging = true; updateTargetPos(e); });
-canvas.addEventListener('mousemove', (e) => { if (isDragging) updateTargetPos(e); });
+// Vector Touch & Cursor Mechanics
+function trackInput(e) {
+    const rect = canvas.getBoundingClientRect();
+    player.targetX = Math.max(player.radius + 15, Math.min(canvas.width - player.radius - 15, e.clientX - rect.left));
+    player.targetY = Math.max(player.radius + 15, Math.min(canvas.height - player.radius - 15, e.clientY - rect.top));
+}
+
+canvas.addEventListener('mousedown', (e) => { isDragging = true; trackInput(e); });
+canvas.addEventListener('mousemove', (e) => { if (isDragging) trackInput(e); });
 window.addEventListener('mouseup', () => { isDragging = false; });
 
-// Support Touch Devices For Dragging
-canvas.addEventListener('touchstart', (e) => { isDragging = true; updateTargetPos(e.touches[0]); e.preventDefault(); }, {passive: false});
-canvas.addEventListener('touchmove', (e) => { if (isDragging) { updateTargetPos(e.touches[0]); e.preventDefault(); } }, {passive: false});
+canvas.addEventListener('touchstart', (e) => { isDragging = true; trackInput(e.touches[0]); e.preventDefault(); }, {passive: false});
+canvas.addEventListener('touchmove', (e) => { if (isDragging) { trackInput(e.touches[0]); e.preventDefault(); } }, {passive: false});
 canvas.addEventListener('touchend', () => { isDragging = false; });
 
-// Dynamic Button Bindings
-document.getElementById('start-btn').addEventListener('click', () => setupSector(1));
-document.getElementById('next-btn').addEventListener('click', () => setupSector(currentLevel + 1));
-document.getElementById('victory-btn').addEventListener('click', () => setupSector(1));
-document.getElementById('restart-btn').addEventListener('click', () => setupSector(currentLevel));
+document.getElementById('start-btn').addEventListener('click', () => initiateFloor(1));
+document.getElementById('next-btn').addEventListener('click', () => initiateFloor(currentLevel + 1));
+document.getElementById('victory-btn').addEventListener('click', () => initiateFloor(1));
+document.getElementById('restart-btn').addEventListener('click', () => initiateFloor(currentLevel));
 
-function createExplosion(x, y, color) {
-    for (let i = 0; i < 12; i++) {
-        particles.push({
-            x: x, y: y,
-            vx: (Math.random() - 0.5) * 6,
-            vy: (Math.random() - 0.5) * 6,
-            radius: Math.random() * 3 + 2,
-            alpha: 1,
-            color: color
-        });
-    }
-}
-
-// Validation Engines To Clear Safe Positions (Prevents spawning items inside obstacles)
-function isPositionInsideWall(x, y, padding = 15) {
+function checkWallCollision(x, y, radius) {
     for (let wall of walls) {
-        if (x + padding > wall.x && x - padding < wall.x + wall.w &&
-            y + padding > wall.y && y - padding < wall.y + wall.h) {
-            return true;
-        }
+        let closestX = Math.max(wall.x, Math.min(x, wall.x + wall.w));
+        let closestY = Math.max(wall.y, Math.min(y, wall.y + wall.h));
+        if (((x - closestX)**2 + (y - closestY)**2) < (radius * radius)) return true;
     }
     return false;
 }
 
-function getSafePosition() {
-    let attempts = 0;
-    while (attempts < 200) {
-        let rx = Math.random() * (canvas.width - 200) + 150; // Keep away from initial safe zone spawn point
-        let ry = Math.random() * (canvas.height - 100) + 50;
-        if (!isPositionInsideWall(rx, ry, 25)) {
-            return { x: rx, y: ry };
-        }
-        attempts++;
+// Line-of-sight calculation to check if walls block a guard's vision
+function isLineOfSightBlocked(x1, y1, x2, y2) {
+    for (let wall of walls) {
+        if (lineIntersectsRect(x1, y1, x2, y2, wall)) return true;
     }
-    return { x: 450, y: 325 }; // Structural fallback map center coordinate
+    return false;
 }
 
-function setupSector(lvl) {
+function lineIntersectsRect(x1, y1, x2, y2, rect) {
+    let minX = rect.x, maxX = rect.x + rect.w;
+    let minY = rect.y, maxY = rect.y + rect.h;
+    
+    // Cohen-Sutherland tracking algorithms simplify checks
+    if ((x1 < minX && x2 < minX) || (x1 > maxX && x2 > maxX) || (y1 < minY && y2 < minY) || (y1 > maxY && y2 > maxY)) return false;
+    
+    // Quick approximation intersection bounding check
+    let m = (y2 - y1) / (x2 - x1);
+    let c = y1 - m * x1;
+    
+    let yAtLeft = m * minX + c;
+    if (yAtLeft >= minY && yAtLeft <= maxY) return true;
+    let yAtRight = m * maxX + c;
+    if (yAtRight >= minY && yAtRight <= maxY) return true;
+    
+    return false;
+}
+
+function getRandomWaypoint() {
+    let attempts = 0;
+    while(attempts < 300) {
+        let wx = Math.random() * (canvas.width - 100) + 50;
+        let wy = Math.random() * (canvas.height - 100) + 50;
+        if (!checkWallCollision(wx, wy, 20)) return { x: wx, y: wy };
+        attempts++;
+    }
+    return { x: 400, y: 300 };
+}
+
+function initiateFloor(lvl) {
     currentLevel = lvl;
-    walls = levelsWallConfig[currentLevel] || levelsWallConfig[1];
+    walls = generateMazeLayout(currentLevel);
     
     levelEl.innerText = `${currentLevel}/${maxLevels}`;
-    if(lvl === 1) { gemsCollected = 0; }
+    if (lvl === 1) gemsCollected = 0;
     gemCountEl.innerText = gemsCollected;
 
-    // Reset Player Profile parameters
-    player.x = 70; player.y = 325;
-    player.targetX = 70; player.targetY = 325;
+    player.x = 60; player.y = 60;
+    player.targetX = 60; player.targetY = 60;
     player.hp = player.maxHp;
     player.angle = 0;
 
-    bullets = []; particles = []; gems = [];
-    buildSectorThreats();
+    bullets = []; gems = [];
+    populateGuards();
 
-    // Clear Screens
     startScreen.classList.remove('active');
     levelScreen.classList.remove('active');
     victoryScreen.classList.remove('active');
@@ -157,89 +174,67 @@ function setupSector(lvl) {
     requestAnimationFrame(gameLoop);
 }
 
-function buildSectorThreats() {
+function populateGuards() {
     guards = [];
-    // Scaling level difficulty matrix configurations
-    // Level 1: 3 Beginners | Level 2: 2 Beg, 2 Bet | Level 3: 1 Beg, 2 Bet, 1 Hvy | Level 4: 3 Bet, 2 Hvy | Level 5: 2 Bet, 4 Hvy
-    let distribution = [];
-    if (currentLevel === 1) distribution = ['beginner', 'beginner', 'beginner'];
-    else if (currentLevel === 2) distribution = ['beginner', 'beginner', 'better', 'better'];
-    else if (currentLevel === 3) distribution = ['beginner', 'better', 'better', 'heavy'];
-    else if (currentLevel === 4) distribution = ['better', 'better', 'better', 'heavy', 'heavy'];
-    else distribution = ['better', 'better', 'heavy', 'heavy', 'heavy', 'heavy'];
+    let roster = [];
 
-    distribution.forEach(type => {
-        let pos = getSafePosition();
-        let guardProfile = {
-            x: pos.x, y: pos.y,
-            radius: 14, angle: Math.random() * Math.PI * 2,
-            speed: type === 'better' ? 2.6 : (type === 'heavy' ? 1.4 : 1.9),
+    if (currentLevel === 1) roster = ['beginner', 'beginner', 'beginner'];
+    else if (currentLevel === 2) roster = ['beginner', 'better', 'better'];
+    else if (currentLevel === 3) roster = ['beginner', 'better', 'heavy', 'heavy'];
+    else if (currentLevel === 4) roster = ['better', 'better', 'heavy', 'heavy'];
+    else roster = ['better', 'heavy', 'heavy', 'heavy', 'heavy'];
+
+    roster.forEach(type => {
+        let spawn = getRandomWaypoint();
+        let targetWP = getRandomWaypoint();
+        
+        guards.push({
+            x: spawn.x, y: spawn.y,
+            wpX: targetWP.x, wpY: targetWP.y,
+            radius: 14, angle: Math.random() * Math.PI*2,
             type: type,
-            dirY: Math.random() > 0.5 ? 1 : -1,
-            patrolMinY: Math.random() * 100 + 50,
-            patrolMaxY: Math.random() * 150 + 450,
+            state: 'patrol', // Options: 'patrol', 'chase', 'suspicious'
+            suspiciousTimer: 0,
+            speed: type === 'better' ? 2.5 : (type === 'heavy' ? 1.5 : 1.9),
+            chaseSpeed: type === 'better' ? 3.5 : (type === 'heavy' ? 2.3 : 2.8),
             shotCooldown: 0,
-            maxCooldown: type === 'better' ? 16 : (type === 'heavy' ? 60 : 38),
-            damage: type === 'heavy' ? 34 : 10,
-            bulletSpeed: type === 'heavy' ? 10 : (type === 'better' ? 7.5 : 5.5),
-            viewDist: type === 'heavy' ? 240 : 200,
-            fov: type === 'heavy' ? Math.PI / 3 : Math.PI / 2.2, // Heavy has tighter but deeper vision focus
+            maxCooldown: type === 'better' ? 18 : (type === 'heavy' ? 55 : 35),
+            damage: type === 'heavy' ? 35 : 12,
+            viewDist: type === 'heavy' ? 230 : 180,
+            fov: type === 'heavy' ? Math.PI/3.2 : Math.PI/2.4,
             color: type === 'better' ? '#0044ff' : (type === 'heavy' ? '#ff3366' : '#00f3ff')
-        };
-        guards.push(guardProfile);
+        });
     });
     guardCountEl.innerText = guards.length;
-}
-
-function checkCircleWallCollision(x, y, radius) {
-    for (let wall of walls) {
-        let closestX = Math.max(wall.x, Math.min(x, wall.x + wall.w));
-        let closestY = Math.max(wall.y, Math.min(y, wall.y + wall.h));
-        let distX = x - closestX;
-        let distY = y - closestY;
-        if ((distX * distX + distY * distY) < (radius * radius)) {
-            return true;
-        }
-    }
-    return false;
 }
 
 function update() {
     if (!gameActive) return;
 
-    // Smooth Slide Trajectory Drag Motion Movement Tracking
-    let dx = player.targetX - player.x;
-    let dy = player.targetY - player.y;
-    let distance = Math.sqrt(dx * dx + dy * dy);
+    // Smooth movement logic
+    let pDx = player.targetX - player.x;
+    let pDy = player.targetY - player.y;
+    let pDist = Math.sqrt(pDx*pDx + pDy*pDy);
 
-    if (distance > 4) {
-        player.angle = Math.atan2(dy, dx);
+    if (pDist > 4) {
+        player.angle = Math.atan2(pDy, pDx);
         let stepX = Math.cos(player.angle) * player.speed;
         let stepY = Math.sin(player.angle) * player.speed;
 
-        if (!checkCircleWallCollision(player.x + stepX, player.y, player.radius)) player.x += stepX;
-        if (!checkCircleWallCollision(player.x, player.y + stepY, player.radius)) player.y += stepY;
+        if (!checkWallCollision(player.x + stepX, player.y, player.radius)) player.x += stepX;
+        if (!checkWallCollision(player.x, player.y + stepY, player.radius)) player.y += stepY;
     }
 
-    // Process Environmental Particles Engine
-    for (let i = particles.length - 1; i >= 0; i--) {
-        let p = particles[i];
-        p.x += p.vx; p.y += p.vy;
-        p.alpha -= 0.025;
-        if (p.alpha <= 0) particles.splice(i, 1);
-    }
-
-    // Process Ballistic Vectors Engine
+    // Ballistics tracking physics logic
     for (let i = bullets.length - 1; i >= 0; i--) {
         let b = bullets[i];
         b.x += Math.cos(b.angle) * b.speed;
         b.y += Math.sin(b.angle) * b.speed;
 
-        let pDx = player.x - b.x;
-        let pDy = player.y - b.y;
-        if (Math.sqrt(pDx*pDx + pDy*pDy) < player.radius) {
+        let bDx = player.x - b.x;
+        let bDy = player.y - b.y;
+        if (Math.sqrt(bDx*bDx + bDy*bDy) < player.radius) {
             player.hp -= b.damage;
-            createExplosion(b.x, b.y, '#ffb800');
             bullets.splice(i, 1);
             if (player.hp <= 0) {
                 gameActive = false;
@@ -248,28 +243,21 @@ function update() {
             continue;
         }
 
-        if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height || checkCircleWallCollision(b.x, b.y, 2)) {
+        if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height || checkWallCollision(b.x, b.y, 2)) {
             bullets.splice(i, 1);
         }
     }
 
-    // Process AI Tracking Logic Loop
+    // Comprehensive State Machine for AI Guard Systems
     for (let i = guards.length - 1; i >= 0; i--) {
         let guard = guards[i];
-        
-        // Adaptive Level Patrol Path System
-        guard.y += guard.speed * guard.dirY;
-        if (guard.y <= guard.patrolMinY || guard.y >= guard.patrolMaxY || checkCircleWallCollision(guard.x, guard.y + (guard.speed * guard.dirY), guard.radius)) {
-            guard.dirY *= -1;
-        }
-        guard.angle = guard.dirY > 0 ? Math.PI / 2 : -Math.PI / 2;
-
         if (guard.shotCooldown > 0) guard.shotCooldown--;
 
         let gDx = player.x - guard.x;
         let gDy = player.y - guard.y;
-        let distToPlayer = Math.sqrt(gDx * gDx + gDy * gDy);
+        let distToPlayer = Math.sqrt(gDx*gDx + gDy*gDy);
 
+        let hasLOS = false;
         if (distToPlayer < guard.viewDist) {
             let angleToPlayer = Math.atan2(gDy, gDx);
             let angleDiff = angleToPlayer - guard.angle;
@@ -278,57 +266,97 @@ function update() {
             while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
 
             if (Math.abs(angleDiff) < guard.fov / 2) {
-                guard.angle = angleToPlayer; // Dynamic visual tracking lock-on
-                if (guard.shotCooldown === 0) {
-                    bullets.push({ x: guard.x, y: guard.y, angle: angleToPlayer, speed: guard.bulletSpeed, damage: guard.damage });
-                    guard.shotCooldown = guard.maxCooldown;
+                if (!isLineOfSightBlocked(guard.x, guard.y, player.x, player.y)) {
+                    hasLOS = true;
                 }
             }
         }
 
-        // Execution Kill Zone Evaluation logic
-        if (distToPlayer < (player.radius + guard.radius + 15)) {
-            let strikeAngle = Math.atan2(guard.y - player.y, guard.x - player.x) - guard.angle;
-            while (strikeAngle < -Math.PI) strikeAngle += Math.PI * 2;
-            while (strikeAngle > Math.PI) strikeAngle -= Math.PI * 2;
+        // State Machine execution branches
+        if (hasLOS) {
+            guard.state = 'chase';
+            guard.angle = Math.atan2(gDy, gDx);
+            
+            // Move directly towards player position coords
+            let cSpeed = guard.chaseSpeed;
+            let cx = Math.cos(guard.angle) * cSpeed;
+            let cy = Math.sin(guard.angle) * cSpeed;
+            if (!checkWallCollision(guard.x + cx, guard.y, guard.radius)) guard.x += cx;
+            if (!checkWallCollision(guard.x, guard.y + cy, guard.radius)) guard.y += cy;
 
-            // Attack validation criteria: Approach from behind
-            if (Math.abs(strikeAngle) < Math.PI / 1.6) {
-                createExplosion(guard.x, guard.y, guard.color);
-                
-                // Safe dynamic generation algorithm for drops
-                if(!isPositionInsideWall(guard.x, guard.y, 8)) {
-                    gems.push({ x: guard.x, y: guard.y, val: guard.type === 'heavy' ? 25 : (guard.type === 'better' ? 15 : 10) });
-                } else {
-                    let fallbackPos = getSafePosition();
-                    gems.push({ x: fallbackPos.x, y: fallbackPos.y, val: 10 });
+            if (guard.shotCooldown === 0) {
+                bullets.push({ x: guard.x, y: guard.y, angle: guard.angle, speed: 7, damage: guard.damage });
+                guard.shotCooldown = guard.maxCooldown;
+            }
+        } else {
+            // Player lost from sight or behind a wall
+            if (guard.state === 'chase') {
+                guard.state = 'suspicious';
+                guard.suspiciousTimer = 120; // 120 frames = exactly 2 seconds
+            }
+
+            if (guard.state === 'suspicious') {
+                guard.suspiciousTimer--;
+                // Scan by rotating back and forth on the spot
+                guard.angle += 0.04 * Math.sin(guard.suspiciousTimer * 0.1);
+
+                if (guard.suspiciousTimer <= 0) {
+                    guard.state = 'patrol';
+                    let wp = getRandomWaypoint();
+                    guard.wpX = wp.x; guard.wpY = wp.y;
                 }
+            } else if (guard.state === 'patrol') {
+                // Return to normal map wandering routines
+                let wDx = guard.wpX - guard.x;
+                let wDy = guard.wpY - guard.y;
+                let wDist = Math.sqrt(wDx*wDx + wDy*wDy);
 
+                if (wDist < 15) {
+                    let wp = getRandomWaypoint();
+                    guard.wpX = wp.x; guard.wpY = wp.y;
+                } else {
+                    guard.angle = Math.atan2(wDy, wDx);
+                    let sx = Math.cos(guard.angle) * guard.speed;
+                    let sy = Math.sin(guard.angle) * guard.speed;
+                    
+                    // If stuck running into walls while wandering, pick a completely fresh target waypoint
+                    if (checkWallCollision(guard.x + sx, guard.y + sy, guard.radius)) {
+                        let wp = getRandomWaypoint();
+                        guard.wpX = wp.x; guard.wpY = wp.y;
+                    } else {
+                        guard.x += sx;
+                        guard.y += sy;
+                    }
+                }
+            }
+        }
+
+        // Takedown logic from behind
+        if (distToPlayer < (player.radius + guard.radius + 12)) {
+            let approachAngle = Math.atan2(guard.y - player.y, guard.x - player.x) - guard.angle;
+            while (approachAngle < -Math.PI) approachAngle += Math.PI * 2;
+            while (approachAngle > Math.PI) approachAngle -= Math.PI * 2;
+
+            if (Math.abs(approachAngle) < Math.PI / 1.5) {
+                gems.push({ x: guard.x, y: guard.y, val: guard.type === 'heavy' ? 30 : 15 });
                 guards.splice(i, 1);
                 guardCountEl.innerText = guards.length;
 
-                // Level Phase Progression Check Engine
                 if (guards.length === 0) {
                     gameActive = false;
-                    if (currentLevel === maxLevels) {
-                        victoryScreen.classList.add('active');
-                    } else {
-                        levelScreen.classList.add('active');
-                    }
+                    if (currentLevel === maxLevels) victoryScreen.classList.add('active');
+                    else levelScreen.classList.add('active');
                 }
             }
         }
     }
 
-    // Collect Rewards Logic Loop
+    // Process Gem pickups
     for (let i = gems.length - 1; i >= 0; i--) {
         let gem = gems[i];
-        let gemDx = player.x - gem.x;
-        let gemDy = player.y - gem.y;
-        if (Math.sqrt(gemDx*gemDx + gemDy*gemDy) < player.radius + 12) {
+        if (Math.sqrt((player.x - gem.x)**2 + (player.y - gem.y)**2) < player.radius + 10) {
             gemsCollected += gem.val;
             gemCountEl.innerText = gemsCollected;
-            createExplosion(gem.x, gem.y, '#00f3ff');
             gems.splice(i, 1);
         }
     }
@@ -337,71 +365,42 @@ function update() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Grid Floor Pattern Map Mesh Matrix
-    ctx.fillStyle = '#070a12';
+    // Floor Base Map mesh layout grid
+    ctx.fillStyle = '#06080d';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = 'rgba(30, 45, 75, 0.15)';
-    ctx.lineWidth = 1;
-    let gridSize = 40;
-    for(let x=0; x<canvas.width; x+=gridSize) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
-    for(let y=0; y<canvas.height; y+=gridSize){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
-
-    // Render Geometric Fortified Wall Obstacles
+    
+    // Draw walls
+    ctx.fillStyle = '#141b29';
+    ctx.strokeStyle = '#222d42';
+    ctx.lineWidth = 2;
     walls.forEach(wall => {
-        // Drop shadows
-        ctx.fillStyle = 'rgba(2, 4, 7, 0.6)';
-        ctx.fillRect(wall.x + 6, wall.y + 6, wall.w, wall.h);
-
-        // Core Solid Barrier structures
-        ctx.fillStyle = '#101622';
         ctx.fillRect(wall.x, wall.y, wall.w, wall.h);
-        ctx.strokeStyle = '#1f2b42';
-        ctx.lineWidth = 2;
         ctx.strokeRect(wall.x, wall.y, wall.w, wall.h);
-
-        // Glowing Core Accents
-        ctx.fillStyle = 'rgba(0, 243, 255, 0.02)';
-        ctx.fillRect(wall.x + 2, wall.y + 2, wall.w - 4, wall.h - 4);
     });
 
-    // Render Reward Crypto Gems Elements
+    // Draw gems
     gems.forEach(gem => {
         ctx.fillStyle = '#00f3ff';
-        ctx.shadowBlur = 12; ctx.shadowColor = '#00f3ff';
-        ctx.beginPath();
-        ctx.arc(gem.x, gem.y, 6, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.shadowBlur = 10; ctx.shadowColor = '#00f3ff';
+        ctx.beginPath(); ctx.arc(gem.x, gem.y, 5, 0, Math.PI*2); ctx.fill();
         ctx.shadowBlur = 0;
     });
 
-    // Render Ballistic Laser Projectiles
+    // Draw bullets
+    ctx.fillStyle = '#ffb800';
     bullets.forEach(b => {
-        ctx.fillStyle = '#ffb800';
-        ctx.shadowBlur = 8; ctx.shadowColor = '#ffb800';
-        ctx.beginPath();
-        ctx.arc(b.x, b.y, 3, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
+        ctx.beginPath(); ctx.arc(b.x, b.y, 3, 0, Math.PI*2); ctx.fill();
     });
 
-    // Render Dynamic Alpha Particles Engine
-    particles.forEach(p => {
-        ctx.save();
-        ctx.globalAlpha = p.alpha;
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-    });
-
-    // Render Threat Patrol Vectors Area Field Cones
+    // Draw guards with context alerts
     guards.forEach(guard => {
-        let viewGrad = ctx.createRadialGradient(guard.x, guard.y, 10, guard.x, guard.y, guard.viewDist);
-        let alphaColor = guard.type === 'heavy' ? 'rgba(255, 51, 102,' : (guard.type === 'better' ? 'rgba(0, 68, 255,' : 'rgba(0, 243, 255,');
-        viewGrad.addColorStop(0, `${alphaColor} 0.25)`);
-        viewGrad.addColorStop(0.4, `${alphaColor} 0.12)`);
-        viewGrad.addColorStop(1, `${alphaColor} 0.0)`);
+        let coneAlpha = 'rgba(0, 243, 255,';
+        if (guard.state === 'chase') coneAlpha = 'rgba(255, 51, 102,';
+        if (guard.state === 'suspicious') coneAlpha = 'rgba(255, 184, 0,';
+
+        let viewGrad = ctx.createRadialGradient(guard.x, guard.y, 5, guard.x, guard.y, guard.viewDist);
+        viewGrad.addColorStop(0, `${coneAlpha}0.22)`);
+        viewGrad.addColorStop(1, `${coneAlpha}0.0)`);
 
         ctx.fillStyle = viewGrad;
         ctx.beginPath();
@@ -410,61 +409,45 @@ function draw() {
         ctx.closePath();
         ctx.fill();
 
-        // Hostile Entity Core Ring Structure
+        // Render Guard entity body core
         ctx.fillStyle = guard.color;
-        ctx.shadowBlur = 10; ctx.shadowColor = guard.color;
-        ctx.beginPath();
-        ctx.arc(guard.x, guard.y, guard.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
+        ctx.beginPath(); ctx.arc(guard.x, guard.y, guard.radius, 0, Math.PI*2); ctx.fill();
 
-        // Visual weapon weapon pointer nozzle indicators
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(guard.x, guard.y);
-        ctx.lineTo(guard.x + Math.cos(guard.angle) * 18, guard.y + Math.sin(guard.angle) * 18);
+        // Weapon pointer tip nozzle line
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.moveTo(guard.x, guard.y);
+        ctx.lineTo(guard.x + Math.cos(guard.angle)*16, guard.y + Math.sin(guard.angle)*16);
         ctx.stroke();
+
+        // Visual Context Status Alert Symbols Overlay Rendering System
+        if (guard.state === 'chase' || guard.state === 'suspicious') {
+            ctx.fillStyle = guard.state === 'chase' ? '#ff3366' : '#ffb800';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(guard.state === 'chase' ? '!' : '?', guard.x, guard.y - 20);
+        }
     });
 
-    // Render Hero Operative Character Entity
-    ctx.fillStyle = '#ffffff';
-    ctx.shadowBlur = 15; ctx.shadowColor = '#00f3ff';
-    ctx.beginPath();
-    ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-    ctx.fill();
-    // Inner cybercore layer accent rings
+    // Render Master Assassin Operative Avatar Entity
     ctx.fillStyle = '#00f3ff';
-    ctx.beginPath();
-    ctx.arc(player.x, player.y, player.radius - 4, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.shadowBlur = 12; ctx.shadowColor = '#00f3ff';
+    ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI*2); ctx.fill();
     ctx.shadowBlur = 0;
 
-    // Direct Target Waypoint Path Vector UI Guide line
-    if (isDragging || Math.sqrt((player.targetX - player.x)**2 + (player.targetY - player.y)**2) > 15) {
-        ctx.strokeStyle = 'rgba(0, 243, 255, 0.25)';
-        ctx.lineWidth = 1.5;
-        ctx.setLineDash([5, 5]);
-        ctx.beginPath();
-        ctx.moveTo(player.x, player.y);
-        ctx.lineTo(player.targetX, player.targetY);
-        ctx.stroke();
+    // Movement path indicator tracking vector line
+    if (Math.sqrt((player.targetX - player.x)**2 + (player.targetY - player.y)**2) > 15) {
+        ctx.strokeStyle = 'rgba(0, 243, 255, 0.2)';
+        ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(player.x, player.y); ctx.lineTo(player.targetX, player.targetY); ctx.stroke();
         ctx.setLineDash([]);
-        
-        // Reticle target node
-        ctx.strokeStyle = '#00f3ff';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.arc(player.targetX, player.targetY, 6, 0, Math.PI*2);
-        ctx.stroke();
     }
 
-    // Float Vitals Metric Progress Gauge Bar UI layout block
-    let barW = 44; let barH = 5;
-    ctx.fillStyle = '#101622';
-    ctx.fillRect(player.x - barW/2, player.y - player.radius - 14, barW, barH);
+    // Floating UI Vitals Bar
+    let barW = 36; let barH = 4;
+    ctx.fillStyle = '#141b29';
+    ctx.fillRect(player.x - barW/2, player.y - player.radius - 12, barW, barH);
     ctx.fillStyle = '#00f3ff';
-    ctx.fillRect(player.x - barW/2, player.y - player.radius - 14, barW * (player.hp / player.maxHp), barH);
+    ctx.fillRect(player.x - barW/2, player.y - player.radius - 12, barW * (player.hp / player.maxHp), barH);
 }
 
 function gameLoop() {
