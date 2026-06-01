@@ -9,6 +9,7 @@ const levelScreen = document.getElementById('level-screen');
 const victoryScreen = document.getElementById('victory-screen');
 const gameOverScreen = document.getElementById('game-over-screen');
 
+// Game Initialization State Tracking Variables
 let gameActive = false;
 let currentLevel = 1;
 const maxLevels = 5;
@@ -20,87 +21,106 @@ let gems = [];
 let bullets = [];
 let walls = [];
 
+// Global Map World Limits
+const world = {
+    width: 1600,
+    height: 1200
+};
+
+// Dynamic Following View Camera Tracking Window
+const camera = {
+    x: 0,
+    y: 0
+};
+
 const player = {
-    x: 50, y: 50,
-    targetX: 50, targetY: 50,
-    radius: 12, speed: 4.8,
+    x: 80, y: 80,
+    targetWorldX: 80, targetWorldY: 80,
+    radius: 12, speed: 5.0,
     angle: 0, hp: 100, maxHp: 100
 };
 
-// Tactical Automated Maze Grid Architecture Matrix Generators
-function generateMazeLayout(level) {
+// Procedural Dynamic Maze Multiplier Array Generators
+function generateMassiveMazeLayout(level) {
     const layoutWalls = [];
-    const cellSize = 100;
-    const cols = 8;
-    const rows = 6;
+    const cellSize = 200; // Expanded spatial cell sizing block paths
 
-    // Outer Boundary Isolation Structural Perimeter Walls
-    layoutWalls.push({ x: 0, y: 0, w: 800, h: 15 });
-    layoutWalls.push({ x: 0, y: 585, w: 800, h: 15 });
-    layoutWalls.push({ x: 0, y: 0, w: 15, h: 600 });
-    layoutWalls.push({ x: 785, y: 0, w: 15, h: 600 });
+    // Outer Map Isolation Structural Perimeter Bound Enclosures
+    layoutWalls.push({ x: 0, y: 0, w: world.width, h: 20 });
+    layoutWalls.push({ x: 0, y: world.height - 20, w: world.width, h: 20 });
+    layoutWalls.push({ x: 0, y: 0, w: 20, h: world.height });
+    layoutWalls.push({ x: world.width - 20, y: 0, w: 20, h: world.height });
 
-    // Built-in Seed Map Maze Blueprints
-    const maps = {
+    // Built-in Seed Map Maze Blueprints for 1600x1200 grid array spans
+    const architectureTemplates = {
         1: [
-            { c: 1, r: 1, w: true, h: false }, { c: 3, r: 1, w: false, h: true },
-            { c: 5, r: 2, w: true, h: true },  { c: 2, r: 4, w: true, h: false },
-            { c: 6, r: 3, w: false, h: true }, { c: 4, r: 4, w: true, h: true }
+            { c: 1, r: 1, w: true, h: false }, { c: 2, r: 3, w: false, h: true },
+            { c: 4, r: 1, w: true, h: true },  { c: 5, r: 4, w: true, h: false },
+            { c: 3, r: 2, w: false, h: true }, { c: 6, r: 2, w: true, h: true },
+            { c: 2, r: 5, w: true, h: false }, { c: 4, r: 4, w: false, h: true }
         ],
         2: [
-            { c: 2, r: 1, w: true, h: true },  { c: 4, r: 2, w: true, h: false },
-            { c: 1, r: 3, w: false, h: true }, { c: 5, r: 4, w: true, h: true },
-            { c: 6, r: 1, w: true, h: false }, { c: 3, r: 3, w: false, h: true }
+            { c: 2, r: 1, w: true, h: true },  { c: 3, r: 4, w: true, h: false },
+            { c: 1, r: 3, w: false, h: true }, { c: 5, r: 2, w: true, h: true },
+            { c: 6, r: 4, w: true, h: false }, { c: 4, r: 3, w: false, h: true },
+            { c: 3, r: 1, w: true, h: false }, { c: 5, r: 5, w: false, h: true }
         ],
         3: [
-            { c: 2, r: 2, w: true, h: true },  { c: 4, r: 1, w: true, h: true },
-            { c: 6, r: 4, w: true, h: false }, { c: 1, r: 4, w: true, h: true },
-            { c: 3, r: 3, w: true, h: false }, { c: 5, r: 2, w: false, h: true }
+            { c: 1, r: 2, w: true, h: true },  { c: 4, r: 2, w: true, h: true },
+            { c: 3, r: 4, w: false, h: true }, { c: 6, r: 1, w: true, h: false },
+            { c: 2, r: 3, w: true, h: false }, { c: 5, r: 4, w: true, h: true },
+            { c: 4, r: 5, w: true, h: false }, { c: 2, r: 1, w: false, h: true }
         ],
         4: [
-            { c: 1, r: 2, w: true, h: true },  { c: 3, r: 4, w: true, h: true },
-            { c: 5, r: 1, w: true, h: true },  { c: 4, r: 3, w: true, h: false },
-            { c: 6, r: 2, w: false, h: true }, { c: 2, r: 3, w: true, h: true }
+            { c: 3, r: 1, w: true, h: true },  { c: 1, r: 4, w: true, h: true },
+            { c: 5, r: 3, w: true, h: false }, { c: 2, r: 2, w: false, h: true },
+            { c: 6, r: 4, w: true, h: true },  { c: 4, r: 4, w: true, h: false },
+            { c: 3, r: 3, w: false, h: true }, { c: 5, r: 1, w: true, h: true }
         ],
         5: [
-            { c: 2, r: 1, w: true, h: true },  { c: 4, r: 4, w: true, h: true },
-            { c: 3, r: 2, w: true, h: false }, { c: 1, r: 3, w: false, h: true },
-            { c: 6, r: 3, w: true, h: true },  { c: 5, r: 1, w: true, h: false }
+            { c: 2, r: 2, w: true, h: true },  { c: 5, r: 1, w: true, h: true },
+            { c: 1, r: 4, w: false, h: true }, { c: 4, r: 3, w: true, h: false },
+            { c: 6, r: 3, w: true, h: true },  { c: 3, r: 5, w: true, h: false },
+            { c: 2, r: 4, w: false, h: true }, { c: 5, r: 4, w: true, h: true }
         ]
     };
 
-    const template = maps[level] || maps[1];
+    const template = architectureTemplates[level] || architectureTemplates[1];
     
-    // Extrapolate internal grid layouts into solid canvas map coordinates
+    // Extrapolate internal grid layouts into solid canvas coordinate objects
     template.forEach(block => {
         let lx = block.c * cellSize;
         let ly = block.r * cellSize;
-        if (block.w) layoutWalls.push({ x: lx, y: ly, w: 25, h: 140 });
-        if (block.h) layoutWalls.push({ x: lx, y: ly, w: 140, h: 25 });
+        if (block.w) layoutWalls.push({ x: lx, y: ly, w: 30, h: 260 });
+        if (block.h) layoutWalls.push({ x: lx, y: ly, w: 260, h: 30 });
     });
 
     return layoutWalls;
 }
 
-// Vector Touch & Cursor Mechanics
-function trackInput(e) {
+// Convert Screen Space Inputs to Absolute World Coordinates System
+function translateInputsToWorld(e) {
     const rect = canvas.getBoundingClientRect();
-    player.targetX = Math.max(player.radius + 15, Math.min(canvas.width - player.radius - 15, e.clientX - rect.left));
-    player.targetY = Math.max(player.radius + 15, Math.min(canvas.height - player.radius - 15, e.clientY - rect.top));
+    let screenX = e.clientX - rect.left;
+    let screenY = e.clientY - rect.top;
+
+    // Relative offset adding system mapping camera tracking states
+    player.targetWorldX = Math.max(player.radius + 20, Math.min(world.width - player.radius - 20, screenX + camera.x));
+    player.targetWorldY = Math.max(player.radius + 20, Math.min(world.height - player.radius - 20, screenY + camera.y));
 }
 
-canvas.addEventListener('mousedown', (e) => { isDragging = true; trackInput(e); });
-canvas.addEventListener('mousemove', (e) => { if (isDragging) trackInput(e); });
+canvas.addEventListener('mousedown', (e) => { isDragging = true; translateInputsToWorld(e); });
+canvas.addEventListener('mousemove', (e) => { if (isDragging) translateInputsToWorld(e); });
 window.addEventListener('mouseup', () => { isDragging = false; });
 
-canvas.addEventListener('touchstart', (e) => { isDragging = true; trackInput(e.touches[0]); e.preventDefault(); }, {passive: false});
-canvas.addEventListener('touchmove', (e) => { if (isDragging) { trackInput(e.touches[0]); e.preventDefault(); } }, {passive: false});
+canvas.addEventListener('touchstart', (e) => { isDragging = true; translateInputsToWorld(e.touches[0]); e.preventDefault(); }, {passive: false});
+canvas.addEventListener('touchmove', (e) => { if (isDragging) { translateInputsToWorld(e.touches[0]); e.preventDefault(); } }, {passive: false});
 canvas.addEventListener('touchend', () => { isDragging = false; });
 
-document.getElementById('start-btn').addEventListener('click', () => initiateFloor(1));
-document.getElementById('next-btn').addEventListener('click', () => initiateFloor(currentLevel + 1));
-document.getElementById('victory-btn').addEventListener('click', () => initiateFloor(1));
-document.getElementById('restart-btn').addEventListener('click', () => initiateFloor(currentLevel));
+document.getElementById('start-btn').addEventListener('click', () => initializeFloorSector(1));
+document.getElementById('next-btn').addEventListener('click', () => initializeFloorSector(currentLevel + 1));
+document.getElementById('victory-btn').addEventListener('click', () => initializeFloorSector(1));
+document.getElementById('restart-btn').addEventListener('click', () => initializeFloorSector(currentLevel));
 
 function checkWallCollision(x, y, radius) {
     for (let wall of walls) {
@@ -111,7 +131,6 @@ function checkWallCollision(x, y, radius) {
     return false;
 }
 
-// Line-of-sight calculation to check if walls block a guard's vision
 function isLineOfSightBlocked(x1, y1, x2, y2) {
     for (let wall of walls) {
         if (lineIntersectsRect(x1, y1, x2, y2, wall)) return true;
@@ -122,11 +141,8 @@ function isLineOfSightBlocked(x1, y1, x2, y2) {
 function lineIntersectsRect(x1, y1, x2, y2, rect) {
     let minX = rect.x, maxX = rect.x + rect.w;
     let minY = rect.y, maxY = rect.y + rect.h;
-    
-    // Cohen-Sutherland tracking algorithms simplify checks
     if ((x1 < minX && x2 < minX) || (x1 > maxX && x2 > maxX) || (y1 < minY && y2 < minY) || (y1 > maxY && y2 > maxY)) return false;
     
-    // Quick approximation intersection bounding check
     let m = (y2 - y1) / (x2 - x1);
     let c = y1 - m * x1;
     
@@ -138,27 +154,31 @@ function lineIntersectsRect(x1, y1, x2, y2, rect) {
     return false;
 }
 
-function getRandomWaypoint() {
+function getRandomWorldWaypoint() {
     let attempts = 0;
-    while(attempts < 300) {
-        let wx = Math.random() * (canvas.width - 100) + 50;
-        let wy = Math.random() * (canvas.height - 100) + 50;
-        if (!checkWallCollision(wx, wy, 20)) return { x: wx, y: wy };
+    while(attempts < 400) {
+        let wx = Math.random() * (world.width - 150) + 75;
+        let wy = Math.random() * (world.height - 150) + 75;
+        // Keep initial level spawns clear of player start bubble
+        if (!checkWallCollision(wx, wy, 25) && Math.sqrt((wx - 80)**2 + (wy - 80)**2) > 250) {
+            return { x: wx, y: wy };
+        }
         attempts++;
     }
-    return { x: 400, y: 300 };
+    return { x: 800, y: 600 };
 }
 
-function initiateFloor(lvl) {
+function initializeFloorSector(lvl) {
     currentLevel = lvl;
-    walls = generateMazeLayout(currentLevel);
+    walls = generateMassiveMazeLayout(currentLevel);
     
     levelEl.innerText = `${currentLevel}/${maxLevels}`;
     if (lvl === 1) gemsCollected = 0;
     gemCountEl.innerText = gemsCollected;
 
-    player.x = 60; player.y = 60;
-    player.targetX = 60; player.targetY = 60;
+    // Force positioning coordinates back into starting camp
+    player.x = 80; player.y = 80;
+    player.targetWorldX = 80; player.targetWorldY = 80;
     player.hp = player.maxHp;
     player.angle = 0;
 
@@ -178,6 +198,7 @@ function populateGuards() {
     guards = [];
     let roster = [];
 
+    // Maintained scaled configurations based on original requirements criteria matrix
     if (currentLevel === 1) roster = ['beginner', 'beginner', 'beginner'];
     else if (currentLevel === 2) roster = ['beginner', 'better', 'better'];
     else if (currentLevel === 3) roster = ['beginner', 'better', 'heavy', 'heavy'];
@@ -185,22 +206,22 @@ function populateGuards() {
     else roster = ['better', 'heavy', 'heavy', 'heavy', 'heavy'];
 
     roster.forEach(type => {
-        let spawn = getRandomWaypoint();
-        let targetWP = getRandomWaypoint();
+        let spawn = getRandomWorldWaypoint();
+        let targetWP = getRandomWorldWaypoint();
         
         guards.push({
             x: spawn.x, y: spawn.y,
             wpX: targetWP.x, wpY: targetWP.y,
             radius: 14, angle: Math.random() * Math.PI*2,
             type: type,
-            state: 'patrol', // Options: 'patrol', 'chase', 'suspicious'
+            state: 'patrol',
             suspiciousTimer: 0,
-            speed: type === 'better' ? 2.5 : (type === 'heavy' ? 1.5 : 1.9),
-            chaseSpeed: type === 'better' ? 3.5 : (type === 'heavy' ? 2.3 : 2.8),
+            speed: type === 'better' ? 2.4 : (type === 'heavy' ? 1.4 : 1.8),
+            chaseSpeed: type === 'better' ? 3.4 : (type === 'heavy' ? 2.2 : 2.7),
             shotCooldown: 0,
             maxCooldown: type === 'better' ? 18 : (type === 'heavy' ? 55 : 35),
             damage: type === 'heavy' ? 35 : 12,
-            viewDist: type === 'heavy' ? 230 : 180,
+            viewDist: type === 'heavy' ? 240 : 190,
             fov: type === 'heavy' ? Math.PI/3.2 : Math.PI/2.4,
             color: type === 'better' ? '#0044ff' : (type === 'heavy' ? '#ff3366' : '#00f3ff')
         });
@@ -211,9 +232,9 @@ function populateGuards() {
 function update() {
     if (!gameActive) return;
 
-    // Smooth movement logic
-    let pDx = player.targetX - player.x;
-    let pDy = player.targetY - player.y;
+    // Movement Calculations tracking vector targets
+    let pDx = player.targetWorldX - player.x;
+    let pDy = player.targetWorldY - player.y;
     let pDist = Math.sqrt(pDx*pDx + pDy*pDy);
 
     if (pDist > 4) {
@@ -225,7 +246,15 @@ function update() {
         if (!checkWallCollision(player.x, player.y + stepY, player.radius)) player.y += stepY;
     }
 
-    // Ballistics tracking physics logic
+    // Camera Tracking Locking Mechanics: Clamped directly over player positioning context
+    camera.x = player.x - canvas.width / 2;
+    camera.y = player.y - canvas.height / 2;
+
+    // Handle Camera layout boundaries limits
+    camera.x = Math.max(0, Math.min(world.width - canvas.width, camera.x));
+    camera.y = Math.max(0, Math.min(world.height - canvas.height, camera.y));
+
+    // Handle Ballistics Engine loop operations
     for (let i = bullets.length - 1; i >= 0; i--) {
         let b = bullets[i];
         b.x += Math.cos(b.angle) * b.speed;
@@ -243,12 +272,12 @@ function update() {
             continue;
         }
 
-        if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height || checkWallCollision(b.x, b.y, 2)) {
+        if (b.x < 0 || b.x > world.width || b.y < 0 || b.y > world.height || checkWallCollision(b.x, b.y, 2)) {
             bullets.splice(i, 1);
         }
     }
 
-    // Comprehensive State Machine for AI Guard Systems
+    // AI Sentry State Control Core Updates Loops
     for (let i = guards.length - 1; i >= 0; i--) {
         let guard = guards[i];
         if (guard.shotCooldown > 0) guard.shotCooldown--;
@@ -272,12 +301,10 @@ function update() {
             }
         }
 
-        // State Machine execution branches
         if (hasLOS) {
             guard.state = 'chase';
             guard.angle = Math.atan2(gDy, gDx);
             
-            // Move directly towards player position coords
             let cSpeed = guard.chaseSpeed;
             let cx = Math.cos(guard.angle) * cSpeed;
             let cy = Math.sin(guard.angle) * cSpeed;
@@ -289,39 +316,35 @@ function update() {
                 guard.shotCooldown = guard.maxCooldown;
             }
         } else {
-            // Player lost from sight or behind a wall
             if (guard.state === 'chase') {
                 guard.state = 'suspicious';
-                guard.suspiciousTimer = 120; // 120 frames = exactly 2 seconds
+                guard.suspiciousTimer = 120; // 120 frames = 2 seconds suspicious delay holding states
             }
 
             if (guard.state === 'suspicious') {
                 guard.suspiciousTimer--;
-                // Scan by rotating back and forth on the spot
                 guard.angle += 0.04 * Math.sin(guard.suspiciousTimer * 0.1);
 
                 if (guard.suspiciousTimer <= 0) {
                     guard.state = 'patrol';
-                    let wp = getRandomWaypoint();
+                    let wp = getRandomWorldWaypoint();
                     guard.wpX = wp.x; guard.wpY = wp.y;
                 }
             } else if (guard.state === 'patrol') {
-                // Return to normal map wandering routines
                 let wDx = guard.wpX - guard.x;
                 let wDy = guard.wpY - guard.y;
                 let wDist = Math.sqrt(wDx*wDx + wDy*wDy);
 
-                if (wDist < 15) {
-                    let wp = getRandomWaypoint();
+                if (wDist < 20) {
+                    let wp = getRandomWorldWaypoint();
                     guard.wpX = wp.x; guard.wpY = wp.y;
                 } else {
                     guard.angle = Math.atan2(wDy, wDx);
                     let sx = Math.cos(guard.angle) * guard.speed;
                     let sy = Math.sin(guard.angle) * guard.speed;
                     
-                    // If stuck running into walls while wandering, pick a completely fresh target waypoint
                     if (checkWallCollision(guard.x + sx, guard.y + sy, guard.radius)) {
-                        let wp = getRandomWaypoint();
+                        let wp = getRandomWorldWaypoint();
                         guard.wpX = wp.x; guard.wpY = wp.y;
                     } else {
                         guard.x += sx;
@@ -331,7 +354,7 @@ function update() {
             }
         }
 
-        // Takedown logic from behind
+        // Hit Takedown Processing Evaluation
         if (distToPlayer < (player.radius + guard.radius + 12)) {
             let approachAngle = Math.atan2(guard.y - player.y, guard.x - player.x) - guard.angle;
             while (approachAngle < -Math.PI) approachAngle += Math.PI * 2;
@@ -351,7 +374,7 @@ function update() {
         }
     }
 
-    // Process Gem pickups
+    // Collect Rewards Logic Loop
     for (let i = gems.length - 1; i >= 0; i--) {
         let gem = gems[i];
         if (Math.sqrt((player.x - gem.x)**2 + (player.y - gem.y)**2) < player.radius + 10) {
@@ -365,20 +388,29 @@ function update() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Floor Base Map mesh layout grid
-    ctx.fillStyle = '#06080d';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw walls
-    ctx.fillStyle = '#141b29';
-    ctx.strokeStyle = '#222d42';
+    ctx.save();
+    // Translate rendering matrix context relative to viewport scrolling window values offsets
+    ctx.translate(-camera.x, -camera.y);
+
+    // Floor Grid Network Render Core Maps
+    ctx.fillStyle = '#05070a';
+    ctx.fillRect(0, 0, world.width, world.height);
+    ctx.strokeStyle = 'rgba(24, 34, 54, 0.25)';
+    ctx.lineWidth = 1;
+    let gridSize = 50;
+    for(let x=0; x<world.width; x+=gridSize) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,world.height); ctx.stroke(); }
+    for(let y=0; y<world.height; y+=gridSize){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(world.width,y); ctx.stroke(); }
+
+    // Render Geometric Walls Matrix
+    ctx.fillStyle = '#111724';
+    ctx.strokeStyle = '#1d273d';
     ctx.lineWidth = 2;
     walls.forEach(wall => {
         ctx.fillRect(wall.x, wall.y, wall.w, wall.h);
         ctx.strokeRect(wall.x, wall.y, wall.w, wall.h);
     });
 
-    // Draw gems
+    // Render Gems
     gems.forEach(gem => {
         ctx.fillStyle = '#00f3ff';
         ctx.shadowBlur = 10; ctx.shadowColor = '#00f3ff';
@@ -386,13 +418,13 @@ function draw() {
         ctx.shadowBlur = 0;
     });
 
-    // Draw bullets
+    // Render Projectiles
     ctx.fillStyle = '#ffb800';
     bullets.forEach(b => {
         ctx.beginPath(); ctx.arc(b.x, b.y, 3, 0, Math.PI*2); ctx.fill();
     });
 
-    // Draw guards with context alerts
+    // Render Guards along with Alert status structures
     guards.forEach(guard => {
         let coneAlpha = 'rgba(0, 243, 255,';
         if (guard.state === 'chase') coneAlpha = 'rgba(255, 51, 102,';
@@ -409,17 +441,14 @@ function draw() {
         ctx.closePath();
         ctx.fill();
 
-        // Render Guard entity body core
         ctx.fillStyle = guard.color;
         ctx.beginPath(); ctx.arc(guard.x, guard.y, guard.radius, 0, Math.PI*2); ctx.fill();
 
-        // Weapon pointer tip nozzle line
         ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5;
         ctx.beginPath(); ctx.moveTo(guard.x, guard.y);
         ctx.lineTo(guard.x + Math.cos(guard.angle)*16, guard.y + Math.sin(guard.angle)*16);
         ctx.stroke();
 
-        // Visual Context Status Alert Symbols Overlay Rendering System
         if (guard.state === 'chase' || guard.state === 'suspicious') {
             ctx.fillStyle = guard.state === 'chase' ? '#ff3366' : '#ffb800';
             ctx.font = 'bold 16px sans-serif';
@@ -428,26 +457,31 @@ function draw() {
         }
     });
 
-    // Render Master Assassin Operative Avatar Entity
+    // Render Player Character Avatar Entity
     ctx.fillStyle = '#00f3ff';
     ctx.shadowBlur = 12; ctx.shadowColor = '#00f3ff';
     ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI*2); ctx.fill();
     ctx.shadowBlur = 0;
 
-    // Movement path indicator tracking vector line
-    if (Math.sqrt((player.targetX - player.x)**2 + (player.targetY - player.y)**2) > 15) {
-        ctx.strokeStyle = 'rgba(0, 243, 255, 0.2)';
-        ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(player.x, player.y); ctx.lineTo(player.targetX, player.targetY); ctx.stroke();
+    // Movement Aim Reticle Target indicator path lines
+    if (Math.sqrt((player.targetWorldX - player.x)**2 + (player.targetWorldY - player.y)**2) > 15) {
+        ctx.strokeStyle = 'rgba(0, 243, 255, 0.25)';
+        ctx.setLineDash([4, 4]); ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(player.x, player.y); ctx.lineTo(player.targetWorldX, player.targetWorldY); ctx.stroke();
         ctx.setLineDash([]);
+        
+        ctx.strokeStyle = '#00f3ff';
+        ctx.beginPath(); ctx.arc(player.targetWorldX, player.targetWorldY, 5, 0, Math.PI*2); ctx.stroke();
     }
 
-    // Floating UI Vitals Bar
+    // Health Vitals Gauge Bar UI
     let barW = 36; let barH = 4;
-    ctx.fillStyle = '#141b29';
+    ctx.fillStyle = '#111724';
     ctx.fillRect(player.x - barW/2, player.y - player.radius - 12, barW, barH);
     ctx.fillStyle = '#00f3ff';
     ctx.fillRect(player.x - barW/2, player.y - player.radius - 12, barW * (player.hp / player.maxHp), barH);
+
+    ctx.restore(); // Restore base transform context matrix references
 }
 
 function gameLoop() {
